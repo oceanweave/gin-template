@@ -8,8 +8,8 @@ import (
 
 type resResult struct {
 	Data    interface{} `json:"data"`
-	Status  uint32        `json:"status"`
-	Message string        `json:"message"`
+	Status  uint32      `json:"status"`
+	Message string      `json:"message"`
 }
 
 type Response struct {
@@ -34,7 +34,11 @@ func NewResponse(status int, code uint32, data interface{}) *Response {
 }
 
 func PutResponse(res *Response) {
-	pool.Put(res)
+	if res != nil {
+		res.R.Data = nil
+		pool.Put(res)
+	}
+
 }
 
 func NewResponseOk(code uint32, data interface{}) *Response {
