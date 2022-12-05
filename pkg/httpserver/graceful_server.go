@@ -3,12 +3,10 @@ package httpserver
 import (
 	"context"
 	"fmt"
-	mytime "gin-template/pkg/utils/time"
+	"gin-template/pkg/proc"
+	mytime "gin-template/pkg/utils"
 	"gin-template/pkg/utils/waitgroup"
 	"net/http"
-	"os"
-	"os/signal"
-	"syscall"
 	"time"
 )
 
@@ -25,7 +23,7 @@ func NewServer(host string, port int, handler http.Handler) *http.Server {
 	}
 
 	return &http.Server{
-		Addr: addr,
+		Addr:    addr,
 		Handler: handler,
 	}
 }
@@ -42,25 +40,19 @@ func ListenAndServe(server *http.Server) {
 
 type AfterCloseHandler func()
 
-// 监听linux信号，收到信号，停止服务
+// WaitForShutdown 监听linux信号，收到信号，停止服务
 func WaitForShutdown(server *http.Server, handlers ...AfterCloseHandler) {
-	c := make(chan os.Signal, 1)
-	signal.Notify(c, syscall.SIGTERM, syscall.SIGQUIT, syscall.SIGINT)
-	select {
-	case sig := <-c:
-		switch sig {
-		case syscall.SIGQUIT, syscall.SIGTERM, syscall.SIGINT:
-			ctx, cancelFunc := context.WithTimeout(context.Background(), time.Second*5)
-			defer cancelFunc()
-			if err := server.Shutdown(ctx); err != nil {
-				fmt.Printf("An error occurs when Server shut:%v", err)
-			}
-
-			for _, handler := range handlers {
-				handler()
-			}
+	proc.DealSignal(func() {
+		ctx, cancelFunc := context.WithTimeout(context.Background(), time.Second*5)
+		defer cancelFunc()
+		if err := server.Shutdown(ctx); err != nil {
+			fmt.Printf("An error occurs when Server shut:%v", err)
 		}
-	}
+
+		for _, handler := range handlers {
+			handler()
+		}
+	})
 
 	wg.Wait()
 }

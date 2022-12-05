@@ -7,6 +7,7 @@ import (
 var (
 	ServerConfig *ServerConf
 	MysqlConfig  *MysqlConf
+	LoggerConfig *LoggerConf
 )
 
 type ServerConf struct {
@@ -22,6 +23,14 @@ type MysqlConf struct {
 	MaxIdleConns   int
 }
 
+type LoggerConf struct {
+	Level       string
+	FilePath    string
+	FileName    string
+	MaxFileSize uint64
+	ToFile      bool
+}
+
 func LoadConf() error {
 	viper.SetConfigName("application")
 	viper.SetConfigType("yaml")
@@ -33,6 +42,7 @@ func LoadConf() error {
 
 	initServerConf()
 	initMysqlConf()
+	initLogConf()
 
 	return nil
 }
@@ -51,5 +61,15 @@ func initMysqlConf() {
 		DataSourceName: viper.GetString("mysql.dataSourceName"),
 		MaxOpenConns:   viper.GetInt("mysql.maxOpenConns"),
 		MaxIdleConns:   viper.GetInt("mysql.maxIdleConns"),
+	}
+}
+
+func initLogConf() {
+	LoggerConfig = &LoggerConf{
+		Level:       viper.GetString("logger.level"),
+		FilePath:    viper.GetString("logger.filePath"),
+		FileName:    viper.GetString("logger.fileName"),
+		MaxFileSize: viper.GetUint64("logger.maxFileSize"),
+		ToFile:      viper.GetBool("logger.toFile"),
 	}
 }

@@ -9,3 +9,9 @@ mysql:
   maxOpenConns: 20
   maxIdleConns: 10
 
+logger:
+  level: "DEBUG"
+  filePath: "./log_file"
+  fileName: "log.log"
+  maxFileSize: 1073741824
+  toFile: false
