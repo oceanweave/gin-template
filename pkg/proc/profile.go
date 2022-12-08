@@ -23,8 +23,7 @@ const DefaultMemProfileRate = 4096
 // 记录启动的次数
 var started uint32
 
-// TODO log可能为nil，在运行时会panic
-var log = logger.Logger()
+var log *logrus.Logger
 
 type Stopper interface {
 	Stop()

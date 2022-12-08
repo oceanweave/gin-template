@@ -13,6 +13,7 @@ func DealSignal(fn func()) {
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, syscall.SIGTERM, syscall.SIGQUIT, syscall.SIGINT, syscall.SIGUSR1, syscall.SIGUSR2)
 
+	setLogger(logger.Logger())
 	var stopper Stopper
 	select {
 	case sig := <-c:
