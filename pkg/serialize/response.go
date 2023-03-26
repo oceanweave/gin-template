@@ -1,14 +1,14 @@
 package serialize
 
 import (
-	code2 "gin-template/pkg/code"
+	"gin-template/pkg/statuscode"
 	"net/http"
 	"sync"
 )
 
 type resResult struct {
 	Data    interface{} `json:"data"`
-	Status  uint32      `json:"status"`
+	Status  int         `json:"status"`
 	Message string      `json:"message"`
 }
 
@@ -23,11 +23,11 @@ var pool = sync.Pool{
 	},
 }
 
-func NewResponse(status int, code uint32, data interface{}) *Response {
+func NewResponse(status int, code statuscode.Code, data interface{}) *Response {
 	response := pool.Get().(*Response)
 	response.HttpStatus = status
-	response.R.Status = code
-	response.R.Message = code2.GetMessage(code)
+	response.R.Status = code.Code()
+	response.R.Message = code.Message()
 	response.R.Data = data
 
 	return response
@@ -41,6 +41,18 @@ func PutResponse(res *Response) {
 
 }
 
-func NewResponseOk(code uint32, data interface{}) *Response {
+func ResponseOK(code statuscode.Code, data interface{}) *Response {
 	return NewResponse(http.StatusOK, code, data)
+}
+
+func ResponseSuccess(data interface{}) *Response {
+	return NewResponse(http.StatusOK, statuscode.Success, data)
+}
+
+func ResponseError(code statuscode.Code) *Response {
+	return NewResponse(http.StatusOK, code, nil)
+}
+
+func ResponseUnknownError() *Response {
+	return NewResponse(http.StatusOK, statuscode.UnknownError, nil)
 }

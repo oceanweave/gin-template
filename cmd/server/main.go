@@ -21,9 +21,9 @@ func main() {
 	}
 
 	// 初始化数据库
-	if err := db.InitMysql(); err != nil {
-		panic(fmt.Errorf("init mysql failed, reason:%s", err.Error()))
-	}
+	//if err := db.InitMysql(); err != nil {
+	//	panic(fmt.Errorf("init mysql failed, reason:%s", err.Error()))
+	//}
 
 	// 创建gin路由
 	engine := routes.NewGinRouter()
